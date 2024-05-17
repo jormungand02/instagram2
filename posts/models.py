@@ -22,7 +22,7 @@ class Post(models.Model):
     content = models.TextField(blank=True,
                                verbose_name= 'Описание')
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания поста')
 
     image = models.ImageField(upload_to='media/',
                               blank=True,

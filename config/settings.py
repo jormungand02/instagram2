@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+from typing import Any, Dict
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,6 +34,7 @@ AUTH_USER_MODEL = 'account.User'
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -191,3 +193,24 @@ CORS_ALLOWED_METHODS = [
     'GET',
     'POST'
 ]
+
+
+JAZZMIN_SETTINGS: Dict[str, Any] = {
+    # title of the window (Will default to current_admin_site.site_title if absent or None)
+    "site_title": "Instagram",
+
+    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_header": "Mega IT",
+    
+   "topmenu_links": [
+
+        # Url that gets reversed (Permissions can be added)
+        {"name": "Главная",  "url": "admin:index", "permissions": ["auth.view_user"]},
+
+        # external url that opens in a new window (Permissions can be added)
+        {"name": "Ссылка на GitHub", "url": "https://github.com/ImAgiD", "new_window": True},
+
+        # model admin to link to (Permissions checked against model)
+        {"model": "auth.User"}
+    ],
+}

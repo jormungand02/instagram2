@@ -30,8 +30,8 @@ class UserManager(BaseUserManager):
   
 class User(AbstractUser):
     username = None
-    email = models.EmailField(unique=True)
-    is_active = models.BooleanField(default=False)
+    email = models.EmailField(unique=True, verbose_name='Почта')
+    is_active = models.BooleanField(default=False, verbose_name='Активен')
     activation_code = models.CharField(max_length=10, blank=True)
 
     USERNAME_FIELD = "email"
@@ -47,5 +47,5 @@ class User(AbstractUser):
         self.activation_code = code
     
     class Meta:
-        verbose_name = "пользователя" 
+        verbose_name = "Пользователя" 
         verbose_name_plural = "Пользователи" 
