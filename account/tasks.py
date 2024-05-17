@@ -6,12 +6,12 @@ from django.urls import reverse
 from celery import shared_task
 
 
-@shared_task
+
 def send_activation_code(email, activation_code):
     context = {
         "text_detail": "Спасибо за регистрацию",
         "email": email,
-        "domain": "http://localhost:8000",
+        "domain": "http://35.225.150.89",
         "activation_code": activation_code,
     }
     msg_html = render_to_string("email.html", context)
@@ -26,7 +26,7 @@ def send_activation_code(email, activation_code):
     )
 
 
-@shared_task
+
 def send_password_reset_link(email, link):
     context = {
         "email": email,
@@ -43,7 +43,7 @@ def send_password_reset_link(email, link):
         fail_silently=False,
     )
 
-@shared_task
+
 def create_reset_url(pk, token):
     reset_url = reverse(
             "password_reset",
