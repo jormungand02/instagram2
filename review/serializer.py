@@ -1,8 +1,6 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Comment,Favorite,Rating
+from .models import Comment, Favorite, Rating
 
-# from rest_framework import serializers
-# from .models import Post
 
 
 class CoomentSerializer(ModelSerializer):

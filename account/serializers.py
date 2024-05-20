@@ -69,3 +69,11 @@ class PasswordResetSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         return data
+    
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'is_active']  # указываем нужные поля
+ #serializers

@@ -24,4 +24,4 @@ class PostListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('title', 'image', 'author') 
+        fields = ('title', 'image', 'author')

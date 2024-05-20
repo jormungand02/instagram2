@@ -38,7 +38,9 @@ urlpatterns = [
     path('docs/', schema_view.with_ui('swagger')),
     path('', include('posts.urls')),
     path('review/',include('review.urls')),
+    path('', include('profiles.urls'))
 ]
+
 
 urlpatterns += static(
     settings.MEDIA_URL, document_root = settings.MEDIA_ROOT
