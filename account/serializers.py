@@ -34,7 +34,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
-        send_activation_code.delay(user.email, user.activation_code)
+        send_activation_code(user.email, user.activation_code)
         return user
 
 
@@ -75,5 +75,4 @@ class PasswordResetSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'is_active']  # указываем нужные поля
- #serializers
+        fields = ['email', 'is_active']

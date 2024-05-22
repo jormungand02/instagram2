@@ -38,7 +38,6 @@ urlpatterns = [
     path('docs/', schema_view.with_ui('swagger')),
     path('', include('posts.urls')),
     path('review/',include('review.urls')),
-    path('', include('profiles.urls'))
 ]
 
 

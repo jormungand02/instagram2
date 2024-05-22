@@ -11,6 +11,8 @@ class UserAdmin(admin.ModelAdmin):
 
 admin.site.register(User, UserAdmin)
 
+
+
 from django.apps import AppConfig
 
 
@@ -18,7 +20,6 @@ class AccountConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'account'
     verbose_name = "Пользователи" 
-
 
 
 from django.db import models
@@ -73,6 +74,7 @@ class User(AbstractUser):
         verbose_name = "Пользователя" 
         verbose_name_plural = "Пользователи" 
 
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework import serializers
@@ -109,7 +111,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
-        send_activation_code.delay(user.email, user.activation_code)
+        send_activation_code(user.email, user.activation_code)
         return user
 
 
@@ -150,8 +152,7 @@ class PasswordResetSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'is_active']  # указываем нужные поля
- #serializers
+        fields = ['email', 'is_active']
 
 
 
@@ -163,12 +164,12 @@ from django.urls import reverse
 from celery import shared_task
 
 
-
+@shared_task
 def send_activation_code(email, activation_code):
     context = {
         "text_detail": "Спасибо за регистрацию",
         "email": email,
-        "domain": "http://35.225.150.89",
+        "domain": "http://127.0.0.1:8000/",
         "activation_code": activation_code,
     }
     msg_html = render_to_string("email.html", context)
@@ -209,6 +210,7 @@ def create_reset_url(pk, token):
     reset_url = f"http://localhost:8000{reset_url}"
     
     return reset_url
+
 
 
 from django.urls import path
@@ -320,159 +322,3 @@ class PasswordResetView(generics.GenericAPIView):
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-
-from django.contrib import admin
-
-from django.contrib import admin
-
-from .models import Post
-
-class PostAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'created_at', 'image')
-    list_filter = ('created_at',)
-    search_fields = ('title',)
-
-admin.site.register(Post, PostAdmin)
-
-
-from django.apps import AppConfig
-
-
-class PostsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'posts'
-    verbose_name = 'Посты'
-
-
-from django.db import models
-from django.contrib.auth import get_user_model
-
-
-User = get_user_model()
-
-class Post(models.Model):
-    class Meta:
-        verbose_name = 'Пост'
-        verbose_name_plural = 'Посты'
-
-
-    author = models.ForeignKey(User,
-                               on_delete=models.CASCADE, 
-                               related_name='posts', 
-                               verbose_name='Автор',
-                               blank=True)
-    
-    title = models.CharField(max_length= 60, 
-                             verbose_name= 'Название')
-    
-    content = models.TextField(blank=True,
-                               verbose_name= 'Описание')
-
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания поста')
-
-    image = models.ImageField(upload_to='media/',
-                              blank=True,
-                              verbose_name='Фото')
-
-
-
-    def __str__(self):
-        return self.title
-
-
-from rest_framework import permissions
-
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj.author == request.user
-    
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from .models import Post
-
-User = get_user_model
-
-class PostSerializer(serializers.ModelSerializer):
-    author = serializers.CharField(source='author.email', read_only=True)
-    class Meta:
-        model = Post
-        fields = '__all__'
-
-
-    def create(self, validated_data):
-        validated_data['author'] = self.context['request'].user
-        post = super().create(validated_data)
-        post.save()
-        return post
-
-from account.models import User 
-
-class PostListSerializer(serializers.ModelSerializer):
-    author = serializers.CharField(source='author.email', read_only=True)
-
-    class Meta:
-        model = Post
-        fields = ('title', 'image', 'author')
-
-
-from rest_framework.routers import DefaultRouter
-from django.urls import path, include
-
-from .views import PostViewSet
-
-router = DefaultRouter()
-router.register('posts', PostViewSet)
-
-urlpatterns = [
-    path('', include(router.urls)),
-]
-
-
-
-from django.shortcuts import render
-
-from django.shortcuts import render
-
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
-from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import filters
-
-from .models import Post
-from .serializers import PostSerializer, PostListSerializer
-from .permissions import IsOwnerOrReadOnly
-
-
-
-class PostViewSet(ModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer 
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend] 
-    filterset_fields = ['author'] 
-    search_fields = ['title']
-
-    
-    def get_permissions(self):
-        if self.action in ['List', 'retrieve']:
-            self.permission_classes = [AllowAny]
-        elif self.action in ['create']:
-            self.permission_classes = [IsAuthenticated]
-        elif self.action in ['update', 'partial_update', 'destroy']:
-            self.permission_classes = [IsOwnerOrReadOnly]
-        return [permission() for permission in self.permission_classes]
-    
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return PostListSerializer
-        return self.serializer_class
-    
-    
-    def get_serializer_context(self):
-        return {'request':self.request}
-
-
-
