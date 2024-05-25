@@ -2,23 +2,15 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework import serializers
 
-from .tasks import send_activation_code, send_password_reset_link, create_reset_url
+from .tasks import send_activation_code
 
 
 User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        min_length=4,
-        required=True,
-        write_only=True,
-    )
-    password_confirm = serializers.CharField(
-        min_length=4,
-        required=True,
-        write_only=True,
-    )
+    password = serializers.CharField(min_length=4, required=True, write_only=True,)
+    password_confirm = serializers.CharField(min_length=4, required=True, write_only=True,)
 
     class Meta:
         model = User
@@ -46,10 +38,7 @@ class EmailSerializer(serializers.Serializer):
 
 
 class PasswordResetSerializer(serializers.Serializer):
-    password = serializers.CharField(
-        write_only=True,
-        min_length=4,
-    )
+    password = serializers.CharField(write_only=True, min_length=4,)
 
     class Meta:
         fields = ["password"]
@@ -60,12 +49,10 @@ class PasswordResetSerializer(serializers.Serializer):
         pk = self.context.get("kwargs").get("pk")
         if not token or not pk:
             raise  serializers.ValidationError("Нет данных")
-            
+        
         user = User.objects.get(pk=pk)
-
         if not PasswordResetTokenGenerator().check_token(user, token):
             raise serializers.ValidationError("Неверный токен для изменеия")
-
         user.set_password(password)
         user.save()
         return data
@@ -76,3 +63,4 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'is_active']
+

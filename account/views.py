@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics
 
 from .serializers import RegisterSerializer, EmailSerializer, PasswordResetSerializer, UserSerializer
 from .tasks import create_reset_url, send_password_reset_link
@@ -68,12 +67,8 @@ class PasswordResetView(generics.GenericAPIView):
         except:
             return Response("User does not exist", 404)
 
-        serializer = self.serializer_class(
-            data=request.data,
-            context={"kwargs": kwargs}
-        )
+        serializer = self.serializer_class(data=request.data, context={"kwargs": kwargs})
         serializer.is_valid(raise_exception=True)
-
         return Response("Ваш пароль успешно изменён")
     
 

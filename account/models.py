@@ -39,7 +39,7 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-    def str(self):
+    def __str__(self):
         return self.email
 
     def create_activation_code(self):
@@ -48,6 +48,4 @@ class User(AbstractUser):
     
     class Meta:
         verbose_name = "Пользователя" 
-        verbose_name_plural = "Пользователи" 
-
-
+        verbose_name_plural = "Пользователи"
